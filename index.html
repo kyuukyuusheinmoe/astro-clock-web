@@ -4,12 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./node_modules/vanillajs-datepicker/dist/css/datepicker.min.css"
+    />
     <title>AstroClock</title>
   </head>
   <body>
-
-    <canvas id="bg"></canvas>   
-
     <!-- <main>
 
       <header>
@@ -81,7 +83,15 @@
 
 
     </main> -->
-    
+
     <script type="module" src="/main.js"></script>
+    <script src="./node_modules/vanillajs-datepicker/dist/js/datepicker-full.js"></script>
+    <script>
+      /*global initialize onChangeType onChnageDirection onChangeInputOption onChangeInputOption onChangeTextareaOption onClickCheckboxOptions switchPicker */
+    </script>
+    <div>
+      <input type="text" name="foo" />
+      <canvas id="bg"></canvas>
+    </div>
   </body>
 </html>
