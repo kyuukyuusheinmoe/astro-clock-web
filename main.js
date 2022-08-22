@@ -33,7 +33,7 @@ const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight
 
 const gridHelper = new THREE.GridHelper(200, 20);
 const axesHelper = new THREE.AxesHelper(10);
-scene.add(directionalLightHelper, gridHelper, axesHelper);
+// scene.add(directionalLightHelper, gridHelper, axesHelper);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
@@ -55,6 +55,7 @@ const EARTH_RADIUS = 6.371 // megameter
 const AXIAL_TILT = 23.439281 // degree
 const SECONDS_IN_SOLAR_DAY = 86400;
 const SOLAR_DAYS_IN_YEAR = 365.256363004;
+const SECONDS_IN_YEAR = SECONDS_IN_SOLAR_DAY * SOLAR_DAYS_IN_YEAR;
 const earthTexture = new THREE.TextureLoader().load('earth.png');
 const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 32, 32)
 const earthMaterial = new THREE.MeshStandardMaterial({ 
@@ -65,13 +66,20 @@ const earth = new THREE.Mesh(earthGeometry, earthMaterial);
 
 scene.add(earth);
 
-const date = new Date("1970-01-01T00:00:00.000+00:00")
+const date = new Date("2022-06-21T12:00:00.000+06:30")
 const secondsFromZeroHour = date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds() + date.getUTCMilliseconds() / 1000;
 const dayGauge = secondsFromZeroHour / SECONDS_IN_SOLAR_DAY;console.log(dayGauge);
 const someDegree = 0.98561;
-let earthDegreeY = (360 + someDegree )  * dayGauge;
-earthDegreeY -= (earthDegreeY >= 360) ? 360 : 0;
-console.log(earthDegreeY);
+const earthRotateY = ((360 + someDegree ) * dayGauge) % 360;
+
+const startYearDate = new Date(date.getUTCFullYear(), 0);
+const secondsFromNewYear = (date.getTime() - startYearDate.getTime()) / 1000;
+const yearGauge = secondsFromNewYear / SECONDS_IN_YEAR;console.log(yearGauge);
+const summerSolsticeDate = new Date(date.getUTCFullYear(), 5, 21);
+const summerSolsticeOffsetSeconds = (summerSolsticeDate.getTime() - startYearDate.getTime()) / 1000;
+const summerSolsticeGauge = summerSolsticeOffsetSeconds / SECONDS_IN_YEAR;console.log(summerSolsticeGauge);
+const earthRevolveY = (360 * (yearGauge - summerSolsticeGauge)) % 360;
+console.log(earthRevolveY);
 
 // Animation Loop
 
@@ -80,14 +88,17 @@ function animate() {
 
   earth.rotation.set(0, 0, 0);
   earth.rotateZ(THREE.MathUtils.degToRad(AXIAL_TILT));
-  earth.rotateY(THREE.MathUtils.degToRad(earthDegreeY));
+  earth.rotateY(THREE.MathUtils.degToRad(earthRotateY));
+  earth.rotateY(THREE.MathUtils.degToRad(earthRevolveY));
 
   moon.translateX(10);
   moon.rotateY(0.01);
   moon.translateX(-10);
 
+  directionalLight.position.set(-15, 0, 0);
+  directionalLight.rotation.set(0, 0, 0);
   directionalLight.translateX(15);
-  directionalLight.rotateY(0.0);
+  directionalLight.rotateY(THREE.MathUtils.degToRad(earthRevolveY));
   directionalLight.translateX(-15);
   controls.update();
   renderer.render(scene, camera);
